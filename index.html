@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SYS_CORE Terminal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #050505; color: #00ff00; font-family: 'Courier New', Courier, monospace; }
+        .cyber-panel { border: 1px solid rgba(0,255,0,0.3); background-color: rgba(0,255,0,0.02); box-shadow: inset 0 0 10px rgba(0,255,0,0.05); }
+        .cursor { display: inline-block; width: 8px; height: 16px; background-color: #00ff00; animation: blink 1s step-end infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+        #terminal-input { background: transparent; border: none; color: #00ff00; outline: none; width: 100%; font-family: inherit; }
+        .view-hidden { display: none !important; }
+        .terminal-text { white-space: pre-wrap; }
+        .scanlines { position: fixed; inset: 0; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06)); background-size: 100% 2px, 3px 100%; z-index: 50; pointer-events: none; }
+    </style>
+</head>
+<body class="h-screen w-screen overflow-hidden flex flex-col p-4 md:p-8 uppercase tracking-wide">
+    <div class="scanlines"></div>
+    <header class="flex flex-col md:flex-row justify-between items-center mb-6 cyber-panel p-4 z-10 relative">
+        <h1 class="text-2xl font-bold tracking-widest text-green-500 font-mono drop-shadow-[0_0_8px_rgba(0,255,0,0.8)]"><span class="text-white">SYS_CORE</span> // TERMINAL_SIM</h1>
+        <nav class="mt-4 md:mt-0 flex gap-4">
+            <button id="nav-blog" class="px-6 py-2 hover:bg-green-900 border border-green-700 transition-colors">Tech Blog</button>
+            <button id="nav-terminal" class="px-6 py-2 bg-green-900 hover:bg-green-800 border border-green-500 transition-colors text-white">Main Core Terminal</button>
+            <button id="nav-resume" class="px-6 py-2 hover:bg-green-900 border border-green-700 transition-colors">Exec Resume Data</button>
+        </nav>
+    </header>
+
+    <main class="flex-grow flex gap-4 overflow-hidden relative z-10 font-mono">
+        <!-- Blog View -->
+        <section id="view-blog" class="view-hidden cyber-panel p-8 flex-grow overflow-y-auto">
+            <h2 class="text-2xl border-b border-green-800 pb-2 mb-6 font-bold text-green-400">Latest Transmissions</h2>
+            <article class="mb-8 p-4 border-l-4 border-green-600 bg-green-900/20">
+                <h3 class="text-xl font-bold text-green-300">Kinetic Navigation in Linux</h3>
+                <p class="mt-4 text-green-500 leading-relaxed lowercase">navigating systems isn't just typing; it's physical movement. learning to map internal network spaces is identical to walking through an unfamiliar building with a flashlight.</p>
+            </article>
+            <article class="mb-8 p-4 border-l-4 border-green-600 bg-green-900/20">
+                <h3 class="text-xl font-bold text-green-300">Neural File Manipulation</h3>
+                <p class="mt-4 text-green-500 leading-relaxed lowercase">using cp and mv acts as kinetic relocation. you aren't just sending commands; you are physically lifting virtual matter and setting it down in new dimensional rooms.</p>
+            </article>
+        </section>
+
+        <!-- Terminal View -->
+        <section id="view-terminal" class="cyber-panel p-6 flex-grow flex flex-col relative bg-black/60 shadow-[inset_0_0_50px_rgba(0,255,0,0.1)]">
+            <div id="vi-overlay" class="absolute inset-0 bg-black z-20 flex-col p-4 view-hidden">
+                <div id="vi-buffer" class="flex-grow overflow-y-auto whitespace-pre-wrap outline-none text-green-500 leading-relaxed max-h-[85%]" contenteditable="true"></div>
+                <div id="vi-status" class="absolute bottom-0 left-0 right-0 border-t border-green-700 text-sm bg-green-900 text-white font-bold p-2 z-30">"filename" 0L, 0C</div>
+            </div>
+            <div id="terminal-output" class="flex-grow overflow-y-auto terminal-text mb-2 break-all text-sm leading-relaxed pb-4">Welcome to SYS_CORE Linux Terminal Simulator v9.1.4.<br>Connection established. Encryption offline.<br><br>Type <span class="text-white">help</span> for curriculum objectives.<br></div>
+            <div class="flex items-center pt-2">
+                <span id="prompt" class="mr-3 text-green-400 font-bold">user@sys_core:~$</span>
+                <input type="text" id="terminal-input" autofocus autocomplete="off" spellcheck="false" class="flex-grow bg-transparent text-green-400 font-bold caret-green-500 focus:outline-none">
+            </div>
+        </section>
+
+        <!-- Resume View -->
+        <section id="view-resume" class="view-hidden cyber-panel p-8 flex-grow overflow-y-auto flex flex-col">
+            <h2 class="text-2xl border-b border-green-800 pb-2 mb-6 font-bold text-green-400">Executive Profile Assembler</h2>
+            <div id="resume-content" class="flex-grow text-green-500 whitespace-pre-wrap mb-6 p-6 bg-black/40 border border-green-900/50 leading-relaxed lowercase">
+                [SYSTEM ALERT: NO EXECUTIVE PROTOCOLS COMPLETED... TRAVERSE THE TERMINAL MODULES TO CONSTRUCT YOUR PROFILE.]
+            </div>
+            <button id="btn-export-resume" class="px-6 py-4 bg-green-900 border border-green-400 hover:bg-green-600 transition-colors w-full uppercase font-bold text-white tracking-widest text-lg shadow-[0_0_15px_rgba(0,255,0,0.4)]">Initialize Download Sequence</button>
+        </section>
+    </main>
+
+    <script src="/app.js"></script>
+</body>
+</html>
