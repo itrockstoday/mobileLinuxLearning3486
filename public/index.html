@@ -1,138 +1,140 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SYS_CORE Terminal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Arcade Terminal & Tech Blog</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { margin: 0; background-color: #050505; color: #00ff41; font-family: 'Courier New', Courier, monospace; overflow: hidden; }
-        .cyber-panel { border: 1px solid rgba(0,255,65,0.3); background-color: #080808; }
-        .cursor { display: inline-block; width: 8px; height: 16px; background-color: #00ff41; animation: blink 1s step-end infinite; }
-        @keyframes blink { 50% { opacity: 0; } }
-        #terminal-input { background: transparent; border: none; color: #ffb000; outline: none; width: 100%; font-family: inherit; }
+        :root {
+            --arcade-purple: #9d00ff;
+            --arcade-yellow: #ffb000;
+            --arcade-green: #00ff41;
+            --bg-slate: #0b0c10;
+        }
+        body { 
+            background-color: var(--bg-slate); 
+            color: #fff; 
+            font-family: 'Courier New', Courier, monospace;
+            overflow: hidden;
+            touch-action: none;
+        }
+        .arcade-panel {
+            border: 2px solid var(--arcade-purple);
+            box-shadow: 0 0 10px rgba(157, 0, 255, 0.4);
+            background-color: #1f2833;
+        }
+        .text-fluid { font-size: clamp(0.75rem, 2vw + 0.5rem, 1rem); }
+        .text-fluid-lg { font-size: clamp(1rem, 3vw + 0.5rem, 1.5rem); }
+        .text-fluid-xl { font-size: clamp(1.25rem, 4vw + 0.5rem, 2rem); }
+        
+        #terminal-input { background: transparent; border: none; color: var(--arcade-yellow); outline: none; width: 100%; font-family: inherit; }
+        #terminal-input:disabled { opacity: 0.5; }
+        
         .view-hidden { display: none !important; }
-        .terminal-text { white-space: pre-wrap; font-size: 13px; }
+        
+        .tab-active { 
+            background-color: var(--arcade-purple) !important; 
+            color: white !important; 
+        }
+
         .scanlines { position: fixed; inset: 0; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 65, 0.02), rgba(0, 0, 255, 0.06)); background-size: 100% 2px, 3px 100%; z-index: 50; pointer-events: none; }
         
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #050505; }
-        ::-webkit-scrollbar-thumb { background: rgba(0, 255, 65, 0.3); }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(0, 255, 65, 0.6); }
-
-        /* Tab Active Class Override */
-        .tab-active { background-color: #00ff41 !important; color: black !important; border-color: #00ff41 !important; }
+        .terminal-container { height: 100svh; height: 100dvh; }
+        
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: var(--bg-slate); }
+        ::-webkit-scrollbar-thumb { background: var(--arcade-purple); }
     </style>
 </head>
-<body class="h-screen w-screen flex flex-col font-mono text-[#00ff41] bg-black">
-    <div class="flex flex-col flex-1 mx-auto w-full max-w-[1400px] bg-[#050505] overflow-hidden border-x border-[#1a1a1a] shadow-[0_0_50px_rgba(0,255,65,0.05)] relative">
-        <div class="scanlines"></div>
+<body class="terminal-container w-screen flex flex-col uppercase tracking-widest text-fluid relative">
+    <div class="scanlines"></div>
+    
+    <div class="flex flex-col flex-1 mx-auto w-full max-w-[1400px] h-full overflow-hidden relative z-10">
         
-        <header class="flex flex-col md:flex-row items-center justify-between px-6 py-3 border-b border-[#00ff41]/30 bg-[#0a0a0a] z-10 relative shrink-0">
-            <div class="flex items-center gap-4 mb-4 md:mb-0 w-full md:w-auto overflow-hidden">
-                <div class="w-3 h-3 bg-[#00ff41] rounded-full animate-pulse shrink-0"></div>
-                <h1 class="text-sm md:text-lg font-bold tracking-widest uppercase truncate whitespace-nowrap text-white">CyberDeck v4.2 // Neural_Link: Active</h1>
+        <header class="flex flex-col md:flex-row items-center justify-between p-4 border-b-4 border-[#9d00ff] bg-[#1f2833] shrink-0">
+            <div class="flex items-center gap-3 mb-3 md:mb-0 w-full md:w-auto">
+                <div class="w-3 h-3 bg-[#ffb000] rounded-full animate-pulse shrink-0"></div>
+                <h1 class="text-fluid-lg font-bold tracking-widest text-[#00ff41] truncate whitespace-nowrap drop-shadow-[0_0_5px_rgba(0,255,65,0.8)]">TECH_LEARN ARCADE</h1>
             </div>
-            <nav class="flex gap-2 text-[10px] md:text-[11px] font-bold z-20 w-full md:w-auto overflow-x-auto uppercase tracking-wider">
-                <button id="nav-blog" class="px-4 py-2 tab-active border border-[#00ff41]/30 hover:bg-[#00ff41] hover:text-black transition-colors uppercase whitespace-nowrap">Tech Blog</button>
-                <button id="nav-terminal" class="px-4 py-2 border border-[#00ff41]/30 hover:bg-[#00ff41] hover:text-black transition-colors uppercase whitespace-nowrap">Main Core</button>
-                <button id="nav-resume" class="px-4 py-2 border border-[#00ff41]/30 hover:bg-[#00ff41] hover:text-black transition-colors uppercase whitespace-nowrap">Exec Resume</button>
+            
+            <div class="flex gap-4 items-center mb-3 md:mb-0 bg-[#0b0c10] px-4 py-2 border-2 border-[#ffb000] rounded-lg shrink-0">
+                <span class="text-[#ffb000] font-bold">XP: <span id="xp-counter">0</span></span>
+                <span class="text-[#9d00ff] font-bold border-l-2 border-[#45a29e] pl-4">RANK: <span id="rank-badge">NOVICE</span></span>
+            </div>
+
+            <nav class="flex gap-2 font-bold w-full md:w-auto overflow-x-auto pb-1 shrink-0">
+                <button id="nav-blog" class="flex-1 md:flex-none min-h-[44px] min-w-[44px] px-4 py-2 border-2 border-[#9d00ff] hover:bg-[#9d00ff] transition-colors tab-active rounded whitespace-nowrap">Tech Blog</button>
+                <button id="nav-terminal" class="flex-1 md:flex-none min-h-[44px] min-w-[44px] px-4 py-2 border-2 border-[#9d00ff] hover:bg-[#9d00ff] transition-colors rounded text-[#ffb000] shadow-[0_0_8px_rgba(255,176,0,0.6)] whitespace-nowrap">Enter Learning Arcade</button>
+                <button id="nav-resume" class="flex-1 md:flex-none min-h-[44px] min-w-[44px] px-4 py-2 border-2 border-[#9d00ff] hover:bg-[#9d00ff] transition-colors rounded whitespace-nowrap">Exec Resume</button>
             </nav>
-            <div class="hidden xl:flex gap-8 text-[11px] opacity-70 uppercase tracking-wider">
-                <span>IP: 192.168.1.104</span>
-                <span>CPU_LOAD: 14%</span>
-                <span class="text-[#ffb000]">FIREBASE_CONNECTED</span>
-            </div>
         </header>
 
-        <main class="flex-1 flex overflow-hidden relative z-10 bg-black">
-            <!-- Blog View -->
-            <section id="view-blog" class="w-full flex flex-col bg-[#080808] border-r border-[#00ff41]/30 max-w-4xl mx-auto border-x my-4">
-                <div class="p-4 border-b border-[#00ff41]/30 bg-[#111] font-bold text-[12px] flex justify-between uppercase tracking-wider">
-                    <span>TECH_BLOG_FEED</span>
-                    <span class="opacity-50 text-[10px] text-[#ffb000]">[EDIP_ENGINE_LOADED]</span>
-                </div>
-                <div class="flex-1 p-6 space-y-6 overflow-y-auto">
-                    <article class="group relative cursor-pointer pt-2 pb-4">
-                        <span class="text-[10px] opacity-50 block mb-1">TRANSMISSION_ALPHA</span>
-                        <h3 class="text-sm text-white group-hover:text-[#00ff41] leading-tight font-bold">Kinetic Navigation in Linux</h3>
-                        <p class="mt-3 text-[#00ff41]/70 text-[11px] leading-relaxed opacity-80">navigating systems isn't just typing; it's physical movement. learning to map internal network spaces is identical to walking through an unfamiliar building with a flashlight.</p>
-                        <div class="absolute bottom-0 left-0 h-[1px] w-0 group-hover:w-full bg-[#00ff41] transition-all duration-300"></div>
+        <main class="flex-1 flex overflow-hidden relative bg-[#0b0c10]">
+            <section id="view-blog" class="w-full h-full flex flex-col p-4 md:p-8 overflow-y-auto">
+                <div class="max-w-4xl mx-auto w-full space-y-6">
+                    <h2 class="text-fluid-xl text-[#00ff41] font-bold border-b-2 border-[#9d00ff] pb-2">LATEST TRANSMISSIONS</h2>
+                    
+                    <article class="arcade-panel p-4 md:p-6 rounded-xl hover:scale-[1.01] transition-transform cursor-pointer">
+                        <span class="text-[10px] text-[#ffb000] mb-2 block">ENTRY: 0X01 // SYSTEM LOG</span>
+                        <h3 class="text-fluid-lg text-white font-bold mb-3">Linux Playgrounds: Building from Scratch</h3>
+                        <p class="text-[#c5c6c7] leading-relaxed text-fluid normal-case">Learning the terminal doesn't have to be scary. Imagine your computer is just a big playground, and the commands you type are just you running around, picking up toys, and organizing your toy boxes. In our arcade, you earn XP just for playing around and trying new things!</p>
                     </article>
-                    <article class="group relative cursor-pointer pt-2 pb-4">
-                        <span class="text-[10px] opacity-50 block mb-1">TRANSMISSION_BETA</span>
-                        <h3 class="text-sm text-white group-hover:text-[#00ff41] leading-tight font-bold">Neural File Manipulation</h3>
-                        <p class="mt-3 text-[#00ff41]/70 text-[11px] leading-relaxed opacity-80">using cp and mv acts as kinetic relocation. you aren't just sending commands; you are physically lifting virtual matter and setting it down in new dimensional rooms.</p>
-                        <div class="absolute bottom-0 left-0 h-[1px] w-0 group-hover:w-full bg-[#00ff41] transition-all duration-300"></div>
+
+                    <article class="arcade-panel p-4 md:p-6 rounded-xl hover:scale-[1.01] transition-transform cursor-pointer">
+                        <span class="text-[10px] text-[#ffb000] mb-2 block">ENTRY: 0X02 // ARCHITECTURE</span>
+                        <h3 class="text-fluid-lg text-white font-bold mb-3">The Magic of VI</h3>
+                        <p class="text-[#c5c6c7] leading-relaxed text-fluid normal-case">Ever wished you had a magic coloring book where you could write the rules of the game? That's what a text editor like VI is. It has different modes, like switching between flipping pages and drawing with a crayon. Click 'Enter Learning Arcade' above to try it yourself.</p>
                     </article>
                 </div>
             </section>
 
-            <!-- Terminal View -->
-            <section id="view-terminal" class="view-hidden flex-1 flex flex-col relative w-full h-full border-x border-[#00ff41]/10">
-                <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,255,65,0.05)_0%,transparent_70%)] pointer-events-none"></div>
+            <section id="view-terminal" class="view-hidden flex-1 flex flex-col relative w-full h-full arcade-panel border-0 border-x-2 md:border-2 md:m-4 md:rounded-xl overflow-hidden shadow-[inset_0_0_50px_rgba(157,0,255,0.2)]">
                 
-                <div id="vi-overlay" class="absolute inset-x-4 inset-y-4 md:inset-x-12 md:inset-y-12 bg-[#0a0a0a] z-20 flex-col border border-[#00ff41]/50 view-hidden shadow-[0_0_30px_rgba(0,255,65,0.1)]">
-                    <div class="flex justify-between px-4 py-2 bg-[#00ff41]/20 text-[11px] uppercase tracking-widest border-b border-[#00ff41]/30 font-bold">
-                        <span>VI: NEURAL_NET.CONF</span>
-                        <span class="text-[#111] bg-[#00ff41] px-1 animate-pulse" id="vi-status-indicator">[ACTIVE OVERRIDE]</span>
+                <div id="vi-overlay" class="absolute inset-2 md:inset-8 bg-[#0b0c10] z-20 flex-col border-2 border-[#00ff41] view-hidden shadow-[0_0_30px_rgba(0,255,65,0.4)] rounded">
+                    <div class="flex justify-between items-center px-4 py-2 bg-[#00ff41]/20 text-fluid font-bold border-b-2 border-[#00ff41]">
+                        <span>VI EDITOR: <span id="vi-title"></span></span>
+                        <span class="text-black bg-[#00ff41] px-2 py-1 animate-pulse" id="vi-status-indicator">COMMAND MODE</span>
                     </div>
-                    <div id="vi-buffer" class="flex-grow overflow-y-auto whitespace-pre-wrap outline-none text-[#ffb000]/90 leading-relaxed p-6 text-[13px] md:text-sm normal-case" contenteditable="true"></div>
-                    <div id="vi-status" class="border-t border-[#00ff41]/30 text-[11px] bg-[#111] text-[#00ff41] p-3 z-30 uppercase tracking-widest font-bold">"filename" 0L, 0C</div>
+                    <div id="vi-buffer" class="flex-grow overflow-y-auto whitespace-pre-wrap outline-none text-[#ffb000] p-4 text-fluid normal-case" contenteditable="false" tabindex="0"></div>
+                    <div class="border-t-2 border-[#00ff41] bg-[#1f2833] text-[#00ff41] p-3 z-30 font-bold flex justify-between gap-4">
+                        <span id="vi-status" class="flex-grow text-fluid"></span>
+                        <span id="vi-cmdline" class="shrink-0 text-white min-w-[50px] text-right text-fluid-lg"></span>
+                    </div>
                 </div>
                 
-                <div id="terminal-output" class="flex-grow overflow-y-auto terminal-text break-all p-6 md:p-8 pb-4 normal-case">
-                    <p class="mb-1 opacity-80 uppercase">[SYS_CORE Linux Terminal Simulator v9.1.4]</p>
-                    <p class="text-[#ffb000] mb-4 uppercase">Connection established. Encryption offline.</p>
-                    <p class="opacity-50 text-[12px] italic mb-6">Type <span class="text-[#00ff41] opacity-100 font-bold">help</span> in lowercase to show objectives. Linux is strictly case-sensitive; typing <span class="text-red-500">HELP</span> or <span class="text-red-500">LS</span> will return 'command not found'.</p>
+                <div id="terminal-output" class="flex-grow overflow-y-auto p-4 md:p-6 pb-2 normal-case leading-relaxed font-bold break-words">
                 </div>
-                <div class="flex items-center pt-2 px-6 md:px-8 pb-8 z-10 shrink-0">
-                    <span id="prompt" class="mr-3 text-white opacity-40 font-bold normal-case">user@cyberdeck:~$</span>
-                    <input type="text" id="terminal-input" autofocus autocomplete="off" spellcheck="false" class="flex-grow bg-transparent text-[#ffb000] font-bold focus:outline-none normal-case text-[13px] md:text-sm">
+                
+                <div id="input-container" class="flex flex-col sm:flex-row items-start sm:items-center px-4 md:px-6 pb-4 shrink-0 bg-[#0b0c10] pt-2">
+                    <span id="prompt" class="mr-2 text-[#9d00ff] font-bold normal-case shrink-0">setup@wizard:~$</span>
+                    <input type="text" id="terminal-input" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" class="flex-grow bg-transparent text-[#ffb000] font-bold focus:outline-none normal-case min-h-[44px] w-full">
                 </div>
             </section>
 
-            <!-- Resume View -->
-            <section id="view-resume" class="view-hidden w-full flex flex-col bg-[#080808] border-l border-[#00ff41]/30 max-w-4xl mx-auto border-x my-4">
-                <div class="p-4 border-b border-[#00ff41]/30 bg-[#111] font-bold text-[12px] flex justify-between uppercase tracking-wider">
-                    <span>RESUME_COMPILATION_V1.0</span>
-                </div>
-                <div class="p-6 flex-1 overflow-y-auto flex flex-col">
-                    <div class="mb-8">
-                        <div class="flex justify-between text-[10px] mb-1 opacity-70 uppercase tracking-wider">
-                            <span>PROGRESS_TOTAL</span>
-                            <span>SYNCING...</span>
-                        </div>
-                        <div class="h-1 w-full bg-[#1a1a1a]">
-                            <div class="h-full bg-[#00ff41] w-full animate-pulse shadow-[0_0_8px_#00ff41]"></div>
-                        </div>
+            <section id="view-resume" class="view-hidden w-full h-full flex flex-col p-4 md:p-8 overflow-y-auto">
+                <div class="max-w-4xl mx-auto w-full h-full flex flex-col">
+                    <div class="arcade-panel p-4 mb-6 rounded-xl text-center shrink-0">
+                        <h2 class="text-fluid-lg font-bold text-[#ffb000]">EXECUTIVE PROFILE ASSEMBLER</h2>
+                        <p class="text-[10px] md:text-[12px] text-[#c5c6c7] mt-2">COMPLETE ARCADE MODULES TO UNLOCK RESUME BLOCKS</p>
                     </div>
 
-                    <div id="resume-content" class="flex-grow text-[11px] md:text-[12px] text-[#00ff41]/80 whitespace-pre-wrap mb-8 p-6 bg-[#0a0a0a] border border-[#00ff41]/20 leading-relaxed italic shadow-inner">
+                    <div id="resume-content" class="flex-grow text-fluid text-[#00ff41] whitespace-pre-wrap mb-6 p-6 bg-[#0b0c10] border-2 border-[#9d00ff] rounded-xl leading-relaxed normal-case overflow-y-auto">
                         [SYSTEM ALERT: NO EXECUTIVE PROTOCOLS COMPLETED... TRAVERSE THE TERMINAL MODULES TO CONSTRUCT YOUR PROFILE.]
                     </div>
 
-                    <div class="mt-auto space-y-3">
-                        <button id="btn-export-resume" class="w-full py-3 bg-[#00ff41] border border-[#00ff41] text-black hover:bg-white hover:border-white transition-colors uppercase font-bold tracking-widest text-[11px] shadow-[0_0_15px_rgba(0,255,65,0.4)]">
-                            Export_Plaintext.exe
+                    <div class="mt-auto shrink-0 space-y-4">
+                        <button id="btn-export-resume" class="w-full min-h-[54px] bg-[#9d00ff] text-white hover:bg-[#ffb000] hover:text-black transition-colors font-bold tracking-widest text-fluid-lg rounded-xl shadow-[0_0_15px_rgba(157,0,255,0.6)]">
+                            DOWNLOAD_RESUME.TXT
                         </button>
+                        <a id="btn-email-resume" href="#" class="flex items-center justify-center w-full min-h-[54px] border-2 border-[#ffb000] text-[#ffb000] hover:bg-[#ffb000] hover:text-black transition-colors font-bold tracking-widest text-fluid-lg rounded-xl text-center">
+                            EMAIL_PAYLOAD
+                        </a>
                     </div>
                 </div>
             </section>
         </main>
-
-        <footer class="h-8 border-t border-[#00ff41]/30 bg-[#0a0a0a] flex items-center justify-between px-6 text-[9px] md:text-[10px] tracking-widest z-10 shrink-0 uppercase">
-            <div class="flex gap-4 md:gap-6">
-                <span class="text-[#ffb000]">STATUS: LEARNING_CONNECTED</span>
-                <span class="opacity-70 hidden sm:inline">BUFFER: OK</span>
-                <span class="opacity-70">LOCATION: /WORKSPACE/ROOT</span>
-            </div>
-            <div class="opacity-70 hidden md:block border-l border-[#00ff41]/30 pl-6">
-                TERMINAL_OVERRIDE_ENABLED [ALT+T]
-            </div>
-        </footer>
     </div>
-    <script src="/app.js"></script>
+    <script type="module" src="/app.js"></script>
 </body>
 </html>
