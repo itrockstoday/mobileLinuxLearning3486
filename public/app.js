@@ -277,7 +277,7 @@ let gameStarted = false;
         // Hide mobile menu on selection if in mobile screen size
         const mNav = document.getElementById('main-nav');
         if (mNav && window.innerWidth < 768) {
-            mNav.classList.add('hidden');
+            mNav.classList.add('max-md:hidden');
         }
         
         if (view === 'terminal') {
@@ -300,12 +300,23 @@ let gameStarted = false;
 const hamburgerBtn = document.getElementById('hamburger-btn');
 const mainNav = document.getElementById('main-nav');
 if (hamburgerBtn && mainNav) {
+    let lastToggle = 0;
     const toggleMenu = (e) => {
+        const now = Date.now();
+        if (now - lastToggle < 300) {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            return;
+        }
+        lastToggle = now;
+        
         if (e) {
             e.preventDefault();
             e.stopPropagation();
         }
-        mainNav.classList.toggle('hidden');
+        mainNav.classList.toggle('max-md:hidden');
     };
     
     hamburgerBtn.addEventListener('click', toggleMenu);
