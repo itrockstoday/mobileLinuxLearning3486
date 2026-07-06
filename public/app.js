@@ -300,9 +300,16 @@ let gameStarted = false;
 const hamburgerBtn = document.getElementById('hamburger-btn');
 const mainNav = document.getElementById('main-nav');
 if (hamburgerBtn && mainNav) {
-    hamburgerBtn.addEventListener('click', () => {
+    const toggleMenu = (e) => {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
         mainNav.classList.toggle('hidden');
-    });
+    };
+    
+    hamburgerBtn.addEventListener('click', toggleMenu);
+    hamburgerBtn.addEventListener('touchend', toggleMenu);
 }
 
 async function startWizard() {
