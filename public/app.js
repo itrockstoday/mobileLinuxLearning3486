@@ -169,7 +169,7 @@ function addXP(amount, reason) {
     
     if (!viMode) {
         const div = document.createElement('div');
-        div.innerHTML = `<br><span class="text-[#00ff41] bg-[#9d00ff]/30 px-2 py-1 font-bold rounded animate-pulse border border-[#9d00ff] uppercase">+${amount} XP EARNED: ${reason}</span><br>`;
+        div.innerHTML = `<br><span class="text-[var(--arcade-green)] bg-[var(--arcade-purple)]/10 px-2 py-1 font-bold rounded animate-pulse border border-[var(--arcade-purple)] uppercase">+${amount} XP EARNED: ${reason}</span><br>`;
         termOutput.appendChild(div);
         scrollToBottom();
     }
@@ -274,6 +274,12 @@ let gameStarted = false;
         document.getElementById(`view-${view}`).classList.remove('view-hidden');
         e.target.classList.add('tab-active');
         
+        // Hide mobile menu on selection if in mobile screen size
+        const mNav = document.getElementById('main-nav');
+        if (mNav && window.innerWidth < 768) {
+            mNav.classList.add('hidden');
+        }
+        
         if (view === 'terminal') {
             termInput.focus();
             scrollToBottom();
@@ -290,21 +296,30 @@ let gameStarted = false;
     });
 });
 
+// Mobile Hamburger Menu Toggle
+const hamburgerBtn = document.getElementById('hamburger-btn');
+const mainNav = document.getElementById('main-nav');
+if (hamburgerBtn && mainNav) {
+    hamburgerBtn.addEventListener('click', () => {
+        mainNav.classList.toggle('hidden');
+    });
+}
+
 async function startWizard() {
     termOutput.innerHTML = '';
     state.wizardStep = 'name';
-    await printTypewriter("=== SYSTEM INITIALIZATION ===", 'text-[#9d00ff] text-fluid-lg text-center tracking-widest drop-shadow-[0_0_5px_rgba(157,0,255,1)] block', 1);
-    await printTypewriter("CONTACT CAPTURE WIZARD", 'text-[#ffb000] text-center block mb-4', 1);
-    await printTypewriter("Welcome to the Arcade! Let's set up your profile.", 'text-[#00ff41] block mb-2', 1);
-    await printTypewriter("(Type skip at any time to use a sample profile)", 'text-[#c5c6c7] block mb-4 italic', 1);
-    await printTypewriter("Enter your Full Name:", 'text-[#ffb000]', 1);
+    await printTypewriter("=== SYSTEM INITIALIZATION ===", 'text-[var(--arcade-purple)] text-fluid-lg text-center tracking-widest drop-shadow-[0_0_4px_rgba(129,140,248,0.3)] block', 1);
+    await printTypewriter("RESUME CONTACT CAPTURE WIZARD", 'text-[var(--arcade-yellow)] text-center block mb-4', 1);
+    await printTypewriter("Welcome to the terminal! Let's set up your profile.", 'text-[var(--arcade-green)] block mb-2', 1);
+    await printTypewriter("(Type skip at any time to use a sample profile)", 'text-slate-400 block mb-4 italic', 1);
+    await printTypewriter("This is for the resume. Enter your Full Name:", 'text-[var(--arcade-yellow)]', 1);
     updatePrompt();
 }
 
 async function handleWizardInput(val) {
     if (val.toLowerCase() === 'skip') {
         state.profile = { name: 'Alex Hacker', email: 'alex@arcade.net', phone: '555-0199' };
-        await printTypewriter("[!] Setup bypassed. Loading sample profile...", 'text-[#ffb000] mt-2', 1);
+        await printTypewriter("[!] Setup bypassed. Loading sample profile...", 'text-[var(--arcade-yellow)] mt-2', 1);
         await finishWizard();
         return;
     }
@@ -312,14 +327,14 @@ async function handleWizardInput(val) {
     if (state.wizardStep === 'name') {
         state.profile.name = val;
         state.wizardStep = 'email';
-        await printTypewriter("Enter your Email Address:", 'text-[#ffb000] mt-2', 1);
+        await printTypewriter("Enter your Email Address:", 'text-[var(--arcade-yellow)] mt-2', 1);
     } else if (state.wizardStep === 'email') {
         state.profile.email = val;
         state.wizardStep = 'phone';
-        await printTypewriter("Enter your Phone Number:", 'text-[#ffb000] mt-2', 1);
+        await printTypewriter("Enter your Phone Number:", 'text-[var(--arcade-yellow)] mt-2', 1);
     } else if (state.wizardStep === 'phone') {
         state.profile.phone = val;
-        await printTypewriter("[✓] Profile saved successfully!", 'text-[#00ff41] mt-2', 1);
+        await printTypewriter("[✓] Profile saved successfully!", 'text-[var(--arcade-green)] mt-2', 1);
         await finishWizard();
     }
 }
@@ -331,13 +346,11 @@ async function finishWizard() {
     updateResumeView();
     await new Promise(r => setTimeout(r, 1000));
     advanceCurriculum();
-}
-
-async function advanceCurriculum(isResuming = false) {
+}async function advanceCurriculum(isResuming = false) {
     if (state.wizardStep !== 'done') return;
     if (state.mod > 4) {
         if (isResuming) termOutput.innerHTML = '';
-        await printTypewriter("Curriculum complete! Check your Exec Resume.", 'text-[#00ff41] text-fluid-lg', 1);
+        await printTypewriter("Curriculum complete! Check your Exec Resume.", 'text-[var(--arcade-green)] text-fluid-lg', 1);
         return;
     }
 
@@ -348,13 +361,13 @@ async function advanceCurriculum(isResuming = false) {
         if (isVi) {
             viBuffer.innerHTML = '';
             viBuffer.contentEditable = 'false';
-            await printTypewriterVi(cur.explain, 'text-[#00ff41] mb-2 font-bold', 3);
+            await printTypewriterVi(cur.explain, 'text-[var(--arcade-green)] mb-2 font-bold', 3);
         } else {
             if (!isResuming) {
                 termOutput.innerHTML = '';
-                await printTypewriter(`--- MODULE ${state.mod} : CONCEPT ${state.concept} ---`, 'text-[#9d00ff] mb-4 font-bold', 1);
+                await printTypewriter(`--- MODULE ${state.mod} : CONCEPT ${state.concept} ---`, 'text-[var(--arcade-purple)] mb-4 font-bold', 1);
             }
-            await printTypewriter(cur.explain, 'text-[#00ff41] mb-2 font-bold', 3);
+            await printTypewriter(cur.explain, 'text-[var(--arcade-green)] mb-2 font-bold', 3);
         }
         state.step = 'demonstrate';
         saveState();
@@ -362,20 +375,20 @@ async function advanceCurriculum(isResuming = false) {
 
     if (state.step === 'demonstrate') {
         if (isVi) {
-            await printTypewriterVi(cur.demonstrateText, 'text-[#ffb000] mb-2 italic', 1);
+            await printTypewriterVi(cur.demonstrateText, 'text-[var(--arcade-yellow)] mb-2 italic', 1);
             await new Promise(r => setTimeout(r, 500));
             await printTypewriterVi(`> ${cur.demonstrateCommand}`, 'text-white mb-2', 1);
             if (cur.demonstrateOutput) {
-                await printTypewriterVi(cur.demonstrateOutput, 'text-[#c5c6c7] mb-4', 1);
+                await printTypewriterVi(cur.demonstrateOutput, 'text-slate-400 mb-4', 1);
             } else {
                 await new Promise(r => setTimeout(r, 500));
             }
         } else {
-            await printTypewriter(cur.demonstrateText, 'text-[#ffb000] mb-2 mt-4 italic', 1);
+            await printTypewriter(cur.demonstrateText, 'text-[var(--arcade-yellow)] mb-2 mt-4 italic', 1);
             await new Promise(r => setTimeout(r, 500));
             await printTypewriter(`player@arcade:~$ ${cur.demonstrateCommand}`, 'text-white mb-2 font-bold', 1);
             if (cur.demonstrateOutput) {
-                await printTypewriter(cur.demonstrateOutput, 'text-[#c5c6c7] mb-4', 1);
+                await printTypewriter(cur.demonstrateOutput, 'text-slate-400 mb-4', 1);
             } else {
                 await new Promise(r => setTimeout(r, 500));
             }
@@ -386,30 +399,30 @@ async function advanceCurriculum(isResuming = false) {
     
     if (state.step === 'imitate') {
         if (isVi) {
-            viStatus.innerHTML = `<span class="text-[#ffb000] animate-pulse">${cur.imitatePrompt}</span>`;
+            viStatus.innerHTML = `<span class="text-[var(--arcade-yellow)] animate-pulse">${cur.imitatePrompt}</span>`;
         } else {
-            await printTypewriter(cur.imitatePrompt, 'text-[#ffb000] mt-4 font-bold', 1);
+            await printTypewriter(cur.imitatePrompt, 'text-[var(--arcade-yellow)] mt-4 font-bold', 1);
         }
     } else if (state.step === 'practice') {
         if (cur.practiceTarget === 'AUTO') {
             if (isVi) {
-                viStatus.innerHTML = `<span class="text-[#9d00ff] font-bold">${cur.practicePrompt}</span>`;
+                viStatus.innerHTML = `<span class="text-[var(--arcade-purple)] font-bold">${cur.practicePrompt}</span>`;
             } else {
-                await printTypewriter(cur.practicePrompt, 'text-[#9d00ff] mt-4 font-bold', 1);
+                await printTypewriter(cur.practicePrompt, 'text-[var(--arcade-purple)] mt-4 font-bold', 1);
             }
             await new Promise(r => setTimeout(r, 2500));
             await handlePracticeSuccess();
             return;
         }
         if (isVi) {
-            viStatus.innerHTML = `<span class="text-[#9d00ff] font-bold">${cur.practicePrompt}</span>`;
+            viStatus.innerHTML = `<span class="text-[var(--arcade-purple)] font-bold">${cur.practicePrompt}</span>`;
             if (state.mod === 4 && state.concept === 2) {
                  viBuffer.innerHTML = '';
                  viBuffer.contentEditable = 'true';
                  viBuffer.focus();
-            }
+             }
         } else {
-            await printTypewriter(cur.practicePrompt, 'text-[#9d00ff] mt-4 font-bold', 1);
+            await printTypewriter(cur.practicePrompt, 'text-[var(--arcade-purple)] mt-4 font-bold', 1);
         }
     }
     updatePrompt();
@@ -424,7 +437,7 @@ async function handlePracticeSuccess() {
         updateResumeView();
         if (!viMode) {
              const div = document.createElement('div');
-             div.innerHTML = `\n<span class="text-black bg-[#ffb000] px-2 py-1 uppercase font-bold">[!] RESUME UNLOCKED: Exec Profile updated.</span>\n`;
+             div.innerHTML = `\n<span class="text-slate-900 bg-[var(--arcade-yellow)] px-2 py-1 uppercase font-bold">[!] RESUME UNLOCKED: Exec Profile updated.</span>\n`;
              termOutput.appendChild(div);
              scrollToBottom();
         }
@@ -437,7 +450,7 @@ async function handlePracticeSuccess() {
         termInput.focus();
         
         termOutput.innerHTML = '';
-        await printTypewriter(cur.practicePrompt, 'text-[#9d00ff] text-fluid-lg mt-4 font-bold', 1);
+        await printTypewriter(cur.practicePrompt, 'text-[var(--arcade-purple)] text-fluid-lg mt-4 font-bold', 1);
         state.mod = 5;
         saveState();
         return;
@@ -468,7 +481,7 @@ termInput.addEventListener('keydown', async (e) => {
         termInput.value = '';
         const promptTxt = document.getElementById('prompt').innerText;
         const div = document.createElement('div');
-        div.innerHTML = `<br><span class="text-[#9d00ff]">${promptTxt}</span> <span class="text-white">${val}</span>`;
+        div.innerHTML = `<br><span class="text-[var(--arcade-purple)]">${promptTxt}</span> <span class="text-white">${val}</span>`;
         termOutput.appendChild(div);
         scrollToBottom();
         
@@ -520,7 +533,7 @@ function openVi(filename) {
     viBuffer.innerHTML = '';
     viBuffer.contentEditable = 'false';
     viStatusIndicator.innerText = 'COMMAND MODE';
-    viStatusIndicator.className = 'text-black bg-[#00ff41] px-2 animate-pulse uppercase';
+    viStatusIndicator.className = 'text-slate-900 bg-[var(--arcade-green)] px-2 animate-pulse uppercase';
     viCmdline.innerText = '';
     termInput.blur();
     viBuffer.focus();
@@ -529,11 +542,11 @@ function openVi(filename) {
 function updateViUI() {
     if (viInsertMode) {
         viStatusIndicator.innerText = 'INSERT MODE';
-        viStatusIndicator.className = 'text-black bg-[#ffb000] px-2 animate-pulse uppercase';
+        viStatusIndicator.className = 'text-slate-900 bg-[var(--arcade-yellow)] px-2 animate-pulse uppercase';
         viCmdline.innerText = '';
     } else {
         viStatusIndicator.innerText = 'COMMAND MODE';
-        viStatusIndicator.className = 'text-black bg-[#00ff41] px-2 animate-pulse uppercase';
+        viStatusIndicator.className = 'text-slate-900 bg-[var(--arcade-green)] px-2 animate-pulse uppercase';
         viCmdline.innerText = exCommand;
     }
 }
@@ -620,12 +633,12 @@ function updateResumeView() {
         rc.innerText = "[SYSTEM ALERT: NO EXECUTIVE PROTOCOLS COMPLETED... TRAVERSE THE TERMINAL MODULES TO CONSTRUCT YOUR PROFILE.]";
     } else {
         const p = state.profile || { name: 'Unknown', email: 'unknown', phone: 'unknown' };
-        rc.innerHTML = `<div class="mb-6 pb-6 border-b-2 border-[#9d00ff]">
+        rc.innerHTML = `<div class="mb-6 pb-6 border-b-2 border-[var(--arcade-purple)]">
                             <h3 class="font-bold text-white uppercase text-fluid-lg">${p.name || 'Unknown'}</h3>
-                            <p class="text-[#ffb000]">${p.email || 'unknown'} | ${p.phone || 'unknown'}</p>
+                            <p class="text-[var(--arcade-yellow)]">${p.email || 'unknown'} | ${p.phone || 'unknown'}</p>
                         </div>
                         <h3 class="font-bold text-white mb-4 uppercase">PROFESSIONAL EXPERIENCE:</h3>` + 
-                       state.resumeBlocks.map(b => `<div class="mb-4 pl-4 border-l-2 border-[#00ff41]"><p class="text-[#c5c6c7] italic text-[14px]">"${b}"</p></div>`).join('');
+                       state.resumeBlocks.map(b => `<div class="mb-4 pl-4 border-l-2 border-[var(--arcade-green)]"><p class="text-slate-400 italic text-[14px]">"${b}"</p></div>`).join('');
     }
 }
 

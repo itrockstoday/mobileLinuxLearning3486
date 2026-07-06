@@ -3,26 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Arcade Terminal & Tech Blog</title>
+    <title>Tech_by_JR</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
-            --arcade-purple: #9d00ff;
-            --arcade-yellow: #ffb000;
-            --arcade-green: #00ff41;
-            --bg-slate: #0b0c10;
+            --arcade-purple: #818cf8; /* Soft Indigo */
+            --arcade-yellow: #fbbf24; /* Warm Gold / Amber */
+            --arcade-green: #34d399;  /* Soothing Mint Emerald */
+            --bg-slate: #0f172a;      /* Soothing Slate-900 */
+            --panel-bg: #1e293b;      /* Soothing Slate-800 */
         }
         body { 
             background-color: var(--bg-slate); 
-            color: #fff; 
+            color: #f1f5f9;           /* Soft slate-100 instead of harsh white */
             font-family: 'Courier New', Courier, monospace;
             overflow: hidden;
             touch-action: none;
         }
         .arcade-panel {
             border: 2px solid var(--arcade-purple);
-            box-shadow: 0 0 10px rgba(157, 0, 255, 0.4);
-            background-color: #1f2833;
+            box-shadow: 0 0 12px rgba(129, 140, 248, 0.15); /* Softer, low-strain glow */
+            background-color: var(--panel-bg);
         }
         .text-fluid { font-size: clamp(0.75rem, 2vw + 0.5rem, 1rem); }
         .text-fluid-lg { font-size: clamp(1rem, 3vw + 0.5rem, 1.5rem); }
@@ -35,10 +36,19 @@
         
         .tab-active { 
             background-color: var(--arcade-purple) !important; 
-            color: white !important; 
+            color: #0f172a !important; /* High contrast but low strain slate background for active tab */
         }
 
-        .scanlines { position: fixed; inset: 0; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 65, 0.02), rgba(0, 0, 255, 0.06)); background-size: 100% 2px, 3px 100%; z-index: 50; pointer-events: none; }
+        /* Extremely subtle, color-fringing free scanline effect */
+        .scanlines { 
+            position: fixed; 
+            inset: 0; 
+            background: linear-gradient(rgba(15, 23, 42, 0) 50%, rgba(15, 23, 42, 0.15) 50%); 
+            background-size: 100% 4px; 
+            z-index: 50; 
+            pointer-events: none; 
+            opacity: 0.5;
+        }
         
         .terminal-container { height: 100svh; height: 100dvh; }
         
@@ -52,58 +62,73 @@
     
     <div class="flex flex-col flex-1 mx-auto w-full max-w-[1400px] h-full overflow-hidden relative z-10">
         
-        <header class="flex flex-col md:flex-row items-center justify-between p-4 border-b-4 border-[#9d00ff] bg-[#1f2833] shrink-0">
-            <div class="flex items-center gap-3 mb-3 md:mb-0 w-full md:w-auto">
-                <div class="w-3 h-3 bg-[#ffb000] rounded-full animate-pulse shrink-0"></div>
-                <h1 class="text-fluid-lg font-bold tracking-widest text-[#00ff41] truncate whitespace-nowrap drop-shadow-[0_0_5px_rgba(0,255,65,0.8)]">TECH_LEARN ARCADE</h1>
+        <header class="flex flex-col md:flex-row items-center justify-between p-4 border-b-4 border-[var(--arcade-purple)] bg-[var(--panel-bg)] shrink-0 gap-3 md:gap-0">
+            <div class="flex items-center justify-between w-full md:w-auto">
+                <div class="flex items-center gap-3">
+                    <div class="w-3 h-3 bg-[var(--arcade-yellow)] rounded-full animate-pulse shrink-0"></div>
+                    <h1 class="text-fluid-lg font-bold tracking-widest text-[var(--arcade-green)] truncate whitespace-nowrap drop-shadow-[0_0_4px_rgba(52,211,153,0.3)]">TECH_BY_JR</h1>
+                </div>
+                <!-- Hamburger menu button (mobile only) -->
+                <button id="hamburger-btn" class="md:hidden flex items-center justify-center p-2 border-2 border-[var(--arcade-purple)] rounded hover:bg-[var(--arcade-purple)]/10 text-[var(--arcade-green)] transition-colors focus:outline-none min-h-[44px] min-w-[44px]" aria-label="Toggle navigation menu">
+                    <svg class="w-6 h-6 fill-none stroke-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
             </div>
             
-            <div class="flex gap-4 items-center mb-3 md:mb-0 bg-[#0b0c10] px-4 py-2 border-2 border-[#ffb000] rounded-lg shrink-0">
-                <span class="text-[#ffb000] font-bold">XP: <span id="xp-counter">0</span></span>
-                <span class="text-[#9d00ff] font-bold border-l-2 border-[#45a29e] pl-4">RANK: <span id="rank-badge">NOVICE</span></span>
+            <div class="flex gap-4 items-center bg-[var(--bg-slate)] px-4 py-2 border-2 border-[var(--arcade-yellow)] rounded-lg shrink-0">
+                <span class="text-[var(--arcade-yellow)] font-bold">XP: <span id="xp-counter">0</span></span>
+                <span class="text-[var(--arcade-purple)] font-bold border-l-2 border-slate-700 pl-4">RANK: <span id="rank-badge">NOVICE</span></span>
             </div>
-
-            <nav class="flex gap-2 font-bold w-full md:w-auto overflow-x-auto pb-1 shrink-0">
-                <button id="nav-blog" class="flex-1 md:flex-none min-h-[44px] min-w-[44px] px-4 py-2 border-2 border-[#9d00ff] hover:bg-[#9d00ff] transition-colors tab-active rounded whitespace-nowrap">Tech Blog</button>
-                <button id="nav-terminal" class="flex-1 md:flex-none min-h-[44px] min-w-[44px] px-4 py-2 border-2 border-[#9d00ff] hover:bg-[#9d00ff] transition-colors rounded text-[#ffb000] shadow-[0_0_8px_rgba(255,176,0,0.6)] whitespace-nowrap">Enter Learning Arcade</button>
-                <button id="nav-resume" class="flex-1 md:flex-none min-h-[44px] min-w-[44px] px-4 py-2 border-2 border-[#9d00ff] hover:bg-[#9d00ff] transition-colors rounded whitespace-nowrap">Exec Resume</button>
-            </nav>
         </header>
 
-        <main class="flex-1 flex overflow-hidden relative bg-[#0b0c10]">
-            <section id="view-blog" class="w-full h-full flex flex-col p-4 md:p-8 overflow-y-auto">
-                <div class="max-w-4xl mx-auto w-full space-y-6">
-                    <h2 class="text-fluid-xl text-[#00ff41] font-bold border-b-2 border-[#9d00ff] pb-2">LATEST TRANSMISSIONS</h2>
-                    
-                    <article class="arcade-panel p-4 md:p-6 rounded-xl hover:scale-[1.01] transition-transform cursor-pointer">
-                        <span class="text-[10px] text-[#ffb000] mb-2 block">ENTRY: 0X01 // SYSTEM LOG</span>
-                        <h3 class="text-fluid-lg text-white font-bold mb-3">Hello and welcome to Tech by JR</h3>
-                        <p class="text-[#c5c6c7] leading-relaxed text-fluid normal-case">Our goal is to provide the ability to understand simple Linux operating system command line information technology standards within a controlled emulated environment. After the modules provided are completed it will be easier to perform more advanced information technology tasks within stand alone applications such as a terminal emulator using Alpine linux within iSH Shell for iPhone or UserLand which allows for terminal emulation using a linux operating system of your choice on Android. There will be advanced concepts covered in future modules that will be published to the terminal emulator.</p>
-                    </article>
-                    
-                    <article class="arcade-panel p-4 md:p-6 rounded-xl hover:scale-[1.01] transition-transform cursor-pointer">
-                        <span class="text-[10px] text-[#ffb000] mb-2 block">ENTRY: 0X02 // SYSTEM LOG</span>
-                        <h3 class="text-fluid-lg text-white font-bold mb-3">Linux Playgrounds: Building from Scratch</h3>
-                        <p class="text-[#c5c6c7] leading-relaxed text-fluid normal-case">Learning the terminal doesn't have to be scary. Imagine your computer is just a big playground, and the commands you type are just you running around, picking up toys, and organizing your toy boxes. In our arcade, you earn XP just for playing around and trying new things!</p>
-                    </article>
+        <main class="flex-1 flex flex-col md:flex-row overflow-hidden relative bg-[var(--bg-slate)]">
+            <!-- Navigation Sidebar (Desktop) / Dropdown Overlay (Mobile) -->
+            <nav id="main-nav" class="hidden md:flex flex-col gap-4 p-4 md:p-6 w-full md:w-64 border-b-4 md:border-b-0 md:border-r-4 border-[var(--arcade-purple)] bg-[var(--panel-bg)] shrink-0 absolute md:relative inset-x-0 top-0 md:top-auto md:bottom-auto z-30 shadow-[0_10px_20px_rgba(0,0,0,0.8)] md:shadow-none transition-all duration-200">
+                <button id="nav-blog" class="w-full min-h-[44px] px-4 py-3 border-2 border-[var(--arcade-purple)] hover:bg-[var(--arcade-purple)] hover:text-[#0f172a] transition-colors tab-active rounded text-left font-bold tracking-widest whitespace-nowrap">The Tech Blog</button>
+                <button id="nav-terminal" class="w-full min-h-[44px] px-4 py-3 border-2 border-[var(--arcade-purple)] hover:bg-[var(--arcade-purple)] hover:text-[#0f172a] transition-colors rounded text-left font-bold tracking-widest text-[var(--arcade-yellow)] shadow-[0_0_6px_rgba(251,191,36,0.2)] whitespace-nowrap">Launch Terminal</button>
+                <button id="nav-resume" class="w-full min-h-[44px] px-4 py-3 border-2 border-[var(--arcade-purple)] hover:bg-[var(--arcade-purple)] hover:text-[#0f172a] transition-colors rounded text-left font-bold tracking-widest whitespace-nowrap">exec resume</button>
+            </nav>
 
+            <section id="view-blog" class="flex-1 w-full h-full flex flex-col p-4 md:p-8 overflow-y-auto">
+                <div class="max-w-4xl mx-auto w-full space-y-6">
+                    <h2 class="text-fluid-xl text-[var(--arcade-green)] font-bold border-b-2 border-[var(--arcade-purple)] pb-2">LATEST TRANSMISSIONS</h2>
+                    
                     <article class="arcade-panel p-4 md:p-6 rounded-xl hover:scale-[1.01] transition-transform cursor-pointer">
-                        <span class="text-[10px] text-[#ffb000] mb-2 block">ENTRY: 0X03 // ARCHITECTURE</span>
-                        <h3 class="text-fluid-lg text-white font-bold mb-3">The Magic of VI</h3>
-                        <p class="text-[#c5c6c7] leading-relaxed text-fluid normal-case">Ever wished you had a magic coloring book where you could write the rules of the game? That's what a text editor like VI is. It has different modes, like switching between flipping pages and drawing with a crayon. Click 'Enter Learning Arcade' above to try it yourself.</p>
+                        <span class="text-[10px] text-[var(--arcade-yellow)] mb-2 block">ENTRY: 0X01 // SYSTEM LOG</span>
+                        <h3 class="text-fluid-lg text-white font-bold mb-3">Hello and welcome</h3>
+                        <p class="text-slate-400 leading-relaxed text-fluid normal-case">Please scroll and read all entries as there are only 4. Our goal at Tech by JR is to provide the ability to understand simple command line information technology standards using a controlled emulated linux environment. After the modules provided are completed it will be easier to perform more advanced information technology tasks within stand alone applications such as creating a simple website today within iSH Shell for iPhone or UserLand which allows for terminal emulation using a linux operating system of your choice on Android. There will be advanced concepts covered in future modules that will be published to the linux terminal emulator.</p>
+                    </article>
+                    
+                    <article class="arcade-panel p-4 md:p-6 rounded-xl hover:scale-[1.01] transition-transform cursor-pointer">
+                        <span class="text-[10px] text-[var(--arcade-yellow)] mb-2 block">ENTRY: 0X02 // ANNOUNCEMENT</span>
+                        <h3 class="text-fluid-lg text-white font-bold mb-3">Linux Playgrounds: Safe learning</h3>
+                        <p class="text-slate-400 leading-relaxed text-fluid normal-case">Learning the terminal doesn't have to be scary. Imagine your computer is just a big playground, and the commands you type are just you running around, picking up toys, and organizing your toy boxes. In the terminal designed, you earn experience points called XP just for playing around and trying new things!</p>
+                    </article>
+ 
+                    <article class="arcade-panel p-4 md:p-6 rounded-xl hover:scale-[1.01] transition-transform cursor-pointer">
+                        <span class="text-[10px] text-[var(--arcade-yellow)] mb-2 block">ENTRY: 0X04 // LAUNCH TERMINAL</span>
+                        <h3 class="text-fluid-lg text-white font-bold mb-3">Using the terminal</h3>
+                        <p class="text-slate-400 leading-relaxed text-fluid normal-case">A custom tailored, emulated linux terminal has been designed to provide an immerse learning environment without the fear of causing damage to your system you're learning from.</p>
+                    </article>
+ 
+                    <article class="arcade-panel p-4 md:p-6 rounded-xl hover:scale-[1.01] transition-transform cursor-pointer">
+                        <span class="text-[10px] text-[var(--arcade-yellow)] mb-2 block">ENTRY: 0X03 // RESUME GENERATOR</span>
+                        <h3 class="text-fluid-lg text-white font-bold mb-3">Resume generated for you</h3>
+                        <p class="text-slate-400 leading-relaxed text-fluid normal-case">We have been kind enough to create a resume generator that goes along with the learning modules to provide meaningful understanding of the corporate executive information technology standards covered within the provided modules.</p>
                     </article>
                 </div>
             </section>
-
-            <section id="view-terminal" class="view-hidden flex-1 flex flex-col relative w-full h-full arcade-panel border-0 border-x-2 md:border-2 md:m-4 md:rounded-xl overflow-hidden shadow-[inset_0_0_50px_rgba(157,0,255,0.2)]">
+ 
+            <section id="view-terminal" class="view-hidden flex-1 flex flex-col relative w-full h-full arcade-panel border-0 border-x-2 md:border-2 md:m-4 md:rounded-xl overflow-hidden shadow-[inset_0_0_50px_rgba(129,140,248,0.08)]">
                 
-                <div id="vi-overlay" class="absolute inset-2 md:inset-8 bg-[#0b0c10] z-20 flex-col border-2 border-[#00ff41] view-hidden shadow-[0_0_30px_rgba(0,255,65,0.4)] rounded">
-                    <div class="flex justify-between items-center px-4 py-2 bg-[#00ff41]/20 text-fluid font-bold border-b-2 border-[#00ff41]">
+                <div id="vi-overlay" class="absolute inset-2 md:inset-8 bg-[var(--bg-slate)] z-20 flex-col border-2 border-[var(--arcade-green)] view-hidden shadow-[0_0_20px_rgba(52,211,153,0.15)] rounded">
+                    <div class="flex justify-between items-center px-4 py-2 bg-[var(--arcade-green)]/10 text-fluid font-bold border-b-2 border-[var(--arcade-green)]">
                         <span>VI EDITOR: <span id="vi-title"></span></span>
-                        <span class="text-black bg-[#00ff41] px-2 py-1 animate-pulse" id="vi-status-indicator">COMMAND MODE</span>
+                        <span class="text-slate-900 bg-[var(--arcade-green)] px-2 py-1 animate-pulse" id="vi-status-indicator">COMMAND MODE</span>
                     </div>
-                    <div id="vi-buffer" class="flex-grow overflow-y-auto whitespace-pre-wrap outline-none text-[#ffb000] p-4 text-fluid normal-case" contenteditable="false" tabindex="0"></div>
-                    <div class="border-t-2 border-[#00ff41] bg-[#1f2833] text-[#00ff41] p-3 z-30 font-bold flex justify-between gap-4">
+                    <div id="vi-buffer" class="flex-grow overflow-y-auto whitespace-pre-wrap outline-none text-[var(--arcade-yellow)] p-4 text-fluid normal-case" contenteditable="false" tabindex="0"></div>
+                    <div class="border-t-2 border-[var(--arcade-green)] bg-[var(--panel-bg)] text-[var(--arcade-green)] p-3 z-30 font-bold flex justify-between gap-4">
                         <span id="vi-status" class="flex-grow text-fluid"></span>
                         <span id="vi-cmdline" class="shrink-0 text-white min-w-[50px] text-right text-fluid-lg"></span>
                     </div>
@@ -112,28 +137,28 @@
                 <div id="terminal-output" class="flex-grow overflow-y-auto p-4 md:p-6 pb-2 normal-case leading-relaxed font-bold break-words">
                 </div>
                 
-                <div id="input-container" class="flex flex-col sm:flex-row items-start sm:items-center px-4 md:px-6 pb-4 shrink-0 bg-[#0b0c10] pt-2">
-                    <span id="prompt" class="mr-2 text-[#9d00ff] font-bold normal-case shrink-0">setup@wizard:~$</span>
-                    <input type="text" id="terminal-input" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" class="flex-grow bg-transparent text-[#ffb000] font-bold focus:outline-none normal-case min-h-[44px] w-full">
+                <div id="input-container" class="flex flex-col sm:flex-row items-start sm:items-center px-4 md:px-6 pb-4 shrink-0 bg-[var(--bg-slate)] pt-2">
+                    <span id="prompt" class="mr-2 text-[var(--arcade-purple)] font-bold normal-case shrink-0">setup@wizard:~$</span>
+                    <input type="text" id="terminal-input" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" class="flex-grow bg-transparent text-[var(--arcade-yellow)] font-bold focus:outline-none normal-case min-h-[44px] w-full">
                 </div>
             </section>
 
-            <section id="view-resume" class="view-hidden w-full h-full flex flex-col p-4 md:p-8 overflow-y-auto">
+            <section id="view-resume" class="view-hidden flex-1 w-full h-full flex flex-col p-4 md:p-8 overflow-y-auto">
                 <div class="max-w-4xl mx-auto w-full h-full flex flex-col">
                     <div class="arcade-panel p-4 mb-6 rounded-xl text-center shrink-0">
-                        <h2 class="text-fluid-lg font-bold text-[#ffb000]">EXECUTIVE PROFILE ASSEMBLER</h2>
-                        <p class="text-[10px] md:text-[12px] text-[#c5c6c7] mt-2">COMPLETE ARCADE MODULES TO UNLOCK RESUME BLOCKS</p>
+                        <h2 class="text-fluid-lg font-bold text-[var(--arcade-yellow)]">EXECUTIVE PROFILE ASSEMBLER</h2>
+                        <p class="text-[10px] md:text-[12px] text-slate-400 mt-2">COMPLETE ARCADE MODULES TO UNLOCK RESUME BLOCKS</p>
                     </div>
 
-                    <div id="resume-content" class="flex-grow text-fluid text-[#00ff41] whitespace-pre-wrap mb-6 p-6 bg-[#0b0c10] border-2 border-[#9d00ff] rounded-xl leading-relaxed normal-case overflow-y-auto">
+                    <div id="resume-content" class="flex-grow text-fluid text-[var(--arcade-green)] whitespace-pre-wrap mb-6 p-6 bg-[var(--bg-slate)] border-2 border-[var(--arcade-purple)] rounded-xl leading-relaxed normal-case overflow-y-auto">
                         [SYSTEM ALERT: NO EXECUTIVE PROTOCOLS COMPLETED... TRAVERSE THE TERMINAL MODULES TO CONSTRUCT YOUR PROFILE.]
                     </div>
 
                     <div class="mt-auto shrink-0 space-y-4">
-                        <button id="btn-export-resume" class="w-full min-h-[54px] bg-[#9d00ff] text-white hover:bg-[#ffb000] hover:text-black transition-colors font-bold tracking-widest text-fluid-lg rounded-xl shadow-[0_0_15px_rgba(157,0,255,0.6)]">
+                        <button id="btn-export-resume" class="w-full min-h-[54px] bg-[var(--arcade-purple)] text-[#0f172a] hover:bg-[var(--arcade-yellow)] hover:text-black transition-colors font-bold tracking-widest text-fluid-lg rounded-xl shadow-[0_0_12px_rgba(129,140,248,0.2)]">
                             DOWNLOAD_RESUME.TXT
                         </button>
-                        <a id="btn-email-resume" href="#" class="flex items-center justify-center w-full min-h-[54px] border-2 border-[#ffb000] text-[#ffb000] hover:bg-[#ffb000] hover:text-black transition-colors font-bold tracking-widest text-fluid-lg rounded-xl text-center">
+                        <a id="btn-email-resume" href="#" class="flex items-center justify-center w-full min-h-[54px] border-2 border-[var(--arcade-yellow)] text-[var(--arcade-yellow)] hover:bg-[var(--arcade-yellow)] hover:text-black transition-colors font-bold tracking-widest text-fluid-lg rounded-xl text-center">
                             EMAIL_PAYLOAD
                         </a>
                     </div>
