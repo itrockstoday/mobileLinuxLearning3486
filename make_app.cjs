@@ -1,4 +1,6 @@
-let state = {
+const fs = require('fs');
+
+const code = `let state = {
     xp: 0,
     rank: 'NOVICE',
     resumeBlocks: [],
@@ -167,38 +169,15 @@ const ranks = [
     { threshold: 1200, name: "LINUX MASTER" }
 ];
 
-
 function updateRank() {
     let currentRank = "NOVICE";
-    let nextThreshold = ranks[1].threshold;
-    let prevThreshold = 0;
-    
-    for (let i = 0; i < ranks.length; i++) {
-        if (state.xp >= ranks[i].threshold) {
-            currentRank = ranks[i].name;
-            prevThreshold = ranks[i].threshold;
-            nextThreshold = (i + 1 < ranks.length) ? ranks[i+1].threshold : ranks[i].threshold;
-        }
+    for (let r of ranks) {
+        if (state.xp >= r.threshold) currentRank = r.name;
     }
     state.rank = currentRank;
-    
-    const xpCounter = document.getElementById('xp-counter');
-    const rankBadge = document.getElementById('rank-badge');
-    const xpProgress = document.getElementById('xp-progress');
-    
-    if (xpCounter) xpCounter.innerText = state.xp;
-    if (rankBadge) rankBadge.innerText = state.rank;
-    
-    if (xpProgress) {
-        let percent = 100;
-        if (nextThreshold > prevThreshold) {
-            percent = Math.floor(((state.xp - prevThreshold) / (nextThreshold - prevThreshold)) * 100);
-        }
-        xpProgress.style.width = percent + '%';
-    }
+    document.getElementById('xp-counter').innerText = state.xp;
+    document.getElementById('rank-badge').innerText = state.rank;
 }
-
-
 
 function addXP(amount, reason) {
     state.xp += amount;
@@ -206,7 +185,7 @@ function addXP(amount, reason) {
     
     if (!viMode) {
         const div = document.createElement('div');
-        div.innerHTML = `<br><span class="text-[var(--arcade-green)] bg-[var(--arcade-purple)]/10 px-2 py-1 font-bold rounded animate-pulse border border-[var(--arcade-purple)] uppercase">+${amount} XP EARNED: ${reason}</span><br>`;
+        div.innerHTML = \`<br><span class="text-[var(--arcade-green)] bg-[var(--arcade-purple)]/10 px-2 py-1 font-bold rounded animate-pulse border border-[var(--arcade-purple)] uppercase">+\${amount} XP EARNED: \${reason}</span><br>\`;
         termOutput.appendChild(div);
         scrollToBottom();
     }
@@ -296,23 +275,23 @@ function saveState() {
 
 function updatePrompt() {
     if (state.wizardStep === 'menu') {
-        document.getElementById('prompt').innerText = `arcade@menu:~$`;
+        document.getElementById('prompt').innerText = \`arcade@menu:~$\`;
     } else if (state.wizardStep !== 'done') {
-        document.getElementById('prompt').innerText = `setup@wizard:~$`;
+        document.getElementById('prompt').innerText = \`setup@wizard:~$\`;
     } else {
-        document.getElementById('prompt').innerText = `player@arcade:~$`;
+        document.getElementById('prompt').innerText = \`player@arcade:~$\`;
     }
 }
 
 let gameStarted = false;
 ['blog', 'terminal', 'resume'].forEach(view => {
-    const btn = document.getElementById(`nav-${view}`);
+    const btn = document.getElementById(\`nav-\${view}\`);
     if(btn) {
         btn.addEventListener('click', (e) => {
             document.querySelectorAll('section').forEach(s => s.classList.add('view-hidden'));
             document.querySelectorAll('nav button').forEach(b => b.classList.remove('tab-active'));
             
-            document.getElementById(`view-${view}`).classList.remove('view-hidden');
+            document.getElementById(\`view-\${view}\`).classList.remove('view-hidden');
             e.target.classList.add('tab-active');
             
             // Hide mobile menu on selection if in mobile screen size
@@ -490,7 +469,7 @@ async function advanceCurriculum(isResuming = false) {
         } else {
             if (!isResuming) {
                 termOutput.innerHTML = '';
-                await printTypewriter(`--- MODULE ${state.mod} : CONCEPT ${state.concept} ---`, 'text-[var(--arcade-purple)] mb-4 font-bold block', 1);
+                await printTypewriter(\`--- MODULE \${state.mod} : CONCEPT \${state.concept} ---\`, 'text-[var(--arcade-purple)] mb-4 font-bold block', 1);
             }
             await printTypewriter(cur.explain, 'text-[var(--arcade-green)] mb-2 font-bold block', 3);
         }
@@ -502,7 +481,7 @@ async function advanceCurriculum(isResuming = false) {
         if (isVi) {
             await printTypewriterVi(cur.demonstrateText, 'text-[var(--arcade-yellow)] mb-2 italic block', 1);
             await new Promise(r => setTimeout(r, 500));
-            await printTypewriterVi(`> ${cur.demonstrateCommand}`, 'text-white mb-2 block', 1);
+            await printTypewriterVi(\`> \${cur.demonstrateCommand}\`, 'text-white mb-2 block', 1);
             if (cur.demonstrateOutput) {
                 await printTypewriterVi(cur.demonstrateOutput, 'text-slate-400 mb-4 block', 1);
             } else {
@@ -512,10 +491,10 @@ async function advanceCurriculum(isResuming = false) {
             // Split presentation: print on a new line
             await printTypewriter(cur.demonstrateText, 'text-[var(--arcade-yellow)] mb-2 mt-4 italic block', 1);
             await new Promise(r => setTimeout(r, 500));
-            await printTypewriter(`player@arcade:~$ ${cur.demonstrateCommand}`, 'text-white mb-2 font-bold block', 1);
+            await printTypewriter(\`player@arcade:~$ \${cur.demonstrateCommand}\`, 'text-white mb-2 font-bold block', 1);
             if (cur.demonstrateOutput) {
                 // Split presentation output
-                let outLines = cur.demonstrateOutput.split('\n');
+                let outLines = cur.demonstrateOutput.split('\\n');
                 for(let line of outLines) {
                     await printTypewriter(line, 'text-slate-400 block break-all', 1);
                 }
@@ -532,7 +511,7 @@ async function advanceCurriculum(isResuming = false) {
     
     if (state.step === 'imitate') {
         if (isVi) {
-            viStatus.innerHTML = `<span class="text-[var(--arcade-yellow)] animate-pulse">${cur.imitatePrompt}</span>`;
+            viStatus.innerHTML = \`<span class="text-[var(--arcade-yellow)] animate-pulse">\${cur.imitatePrompt}</span>\`;
         } else {
             // New line layout protection
             await printTypewriter(cur.imitatePrompt, 'text-[var(--arcade-yellow)] mt-4 font-bold block', 1);
@@ -541,7 +520,7 @@ async function advanceCurriculum(isResuming = false) {
         const pStep = cur.practice[state.subStep];
         if (pStep.target === 'AUTO') {
             if (isVi) {
-                viStatus.innerHTML = `<span class="text-[var(--arcade-purple)] font-bold">${pStep.prompt}</span>`;
+                viStatus.innerHTML = \`<span class="text-[var(--arcade-purple)] font-bold">\${pStep.prompt}</span>\`;
             } else {
                 await printTypewriter(pStep.prompt, 'text-[var(--arcade-purple)] mt-4 font-bold block', 1);
             }
@@ -550,7 +529,7 @@ async function advanceCurriculum(isResuming = false) {
             return;
         }
         if (isVi) {
-            viStatus.innerHTML = `<span class="text-[var(--arcade-purple)] font-bold">${pStep.prompt}</span>`;
+            viStatus.innerHTML = \`<span class="text-[var(--arcade-purple)] font-bold">\${pStep.prompt}</span>\`;
             if (state.mod === 4 && state.concept === 2) {
                  viBuffer.innerHTML = '';
                  viBuffer.contentEditable = 'true';
@@ -563,7 +542,7 @@ async function advanceCurriculum(isResuming = false) {
 }
 
 async function handlePracticeSuccess() {
-    addXP(100, `PRACTICE`);
+    addXP(100, \`PRACTICE\`);
     const cur = CURRICULUM[state.mod][state.concept];
     
     // Check if more practice steps remain
@@ -579,7 +558,7 @@ async function handlePracticeSuccess() {
         updateResumeView();
         if (!viMode) {
              const div = document.createElement('div');
-             div.innerHTML = `\n<span class="text-slate-900 bg-[var(--arcade-yellow)] px-2 py-1 uppercase font-bold block mt-2 mb-2">[!] RESUME UNLOCKED: Exec Profile updated.</span>\n`;
+             div.innerHTML = \`\\n<span class="text-slate-900 bg-[var(--arcade-yellow)] px-2 py-1 uppercase font-bold block mt-2 mb-2">[!] RESUME UNLOCKED: Exec Profile updated.</span>\\n\`;
              termOutput.appendChild(div);
              scrollToBottom();
         }
@@ -624,7 +603,7 @@ termInput.addEventListener('keydown', async (e) => {
         
         const promptTxt = document.getElementById('prompt').innerText;
         const div = document.createElement('div');
-        div.innerHTML = `<br><span class="text-[var(--arcade-purple)]">${promptTxt}</span> <span class="text-white">${val}</span>`;
+        div.innerHTML = \`<br><span class="text-[var(--arcade-purple)]">\${promptTxt}</span> <span class="text-white">\${val}</span>\`;
         termOutput.appendChild(div);
         scrollToBottom();
 
@@ -651,16 +630,16 @@ termInput.addEventListener('keydown', async (e) => {
         const cur = CURRICULUM[state.mod][state.concept];
         if (state.step === 'imitate') {
             if (val.trim() === cur.imitateTarget) {
-                addXP(50, `IMITATE`);
+                addXP(50, \`IMITATE\`);
                 
                 // Simulate output feedback for imitate
                 if(val.trim().startsWith('ls')) {
                    const res = document.createElement('div');
-                   res.innerHTML = `<span class="text-slate-400 break-words block">${val.trim() === 'ls -a' ? '.   ..   toy.txt  blocks.txt  puzzle' : 'toy.txt  blocks.txt  puzzle'}</span>`;
+                   res.innerHTML = \`<span class="text-slate-400 break-words block">\${val.trim() === 'ls -a' ? '.   ..   toy.txt  blocks.txt  puzzle' : 'toy.txt  blocks.txt  puzzle'}</span>\`;
                    termOutput.appendChild(res);
                 } else if(val.trim().startsWith('pwd')) {
                    const res = document.createElement('div');
-                   res.innerHTML = `<span class="text-slate-400 block break-words">/home/user${val.includes('playground') ? '/playground' : ''}</span>`;
+                   res.innerHTML = \`<span class="text-slate-400 block break-words">/home/user\${val.includes('playground') ? '/playground' : ''}</span>\`;
                    termOutput.appendChild(res);
                 }
                 
@@ -674,7 +653,7 @@ termInput.addEventListener('keydown', async (e) => {
                 }
             } else {
                 const err = document.createElement('div');
-                err.innerHTML = `<span class="text-red-500 block mt-1">Incorrect. Expected: ${cur.imitateTarget}</span>`;
+                err.innerHTML = \`<span class="text-red-500 block mt-1">Incorrect. Expected: \${cur.imitateTarget}</span>\`;
                 termOutput.appendChild(err);
                 scrollToBottom();
             }
@@ -684,18 +663,18 @@ termInput.addEventListener('keydown', async (e) => {
                 // Simulate output feedback for practice
                 if(pStep.output) {
                    const res = document.createElement('div');
-                   res.innerHTML = `<span class="text-slate-400 block break-words">${pStep.output}</span>`;
+                   res.innerHTML = \`<span class="text-slate-400 block break-words">\${pStep.output}</span>\`;
                    termOutput.appendChild(res);
                 } else if(val.trim().startsWith('ls')) {
                    const res = document.createElement('div');
-                   res.innerHTML = `<span class="text-slate-400 block break-words">${val.trim() === 'ls -a' ? '.   ..   toy.txt  blocks.txt  puzzle' : 'toy.txt  blocks.txt  puzzle'}</span>`;
+                   res.innerHTML = \`<span class="text-slate-400 block break-words">\${val.trim() === 'ls -a' ? '.   ..   toy.txt  blocks.txt  puzzle' : 'toy.txt  blocks.txt  puzzle'}</span>\`;
                    termOutput.appendChild(res);
                 }
                 
                 await handlePracticeSuccess();
             } else {
                 const err = document.createElement('div');
-                err.innerHTML = `<span class="text-red-500 block mt-1">Incorrect. Expected: ${pStep.target}</span>`;
+                err.innerHTML = \`<span class="text-red-500 block mt-1">Incorrect. Expected: \${pStep.target}</span>\`;
                 termOutput.appendChild(err);
                 scrollToBottom();
             }
@@ -740,7 +719,7 @@ viOverlay.addEventListener('keydown', (e) => {
     if (state.mod === 4 && state.concept === 2 && state.step === 'imitate') {
         if (e.key === 'i') {
             e.preventDefault();
-            addXP(50, `IMITATE`);
+            addXP(50, \`IMITATE\`);
             state.step = 'practice';
             saveState();
             viInsertMode = true;
@@ -761,7 +740,7 @@ viOverlay.addEventListener('keydown', (e) => {
             if (viBuffer.innerText.trim().length > 0) {
                 handlePracticeSuccess();
             } else {
-                viStatus.innerHTML = `<span class="text-red-500 font-bold">Type something first, then press Escape!</span>`;
+                viStatus.innerHTML = \`<span class="text-red-500 font-bold">Type something first, then press Escape!</span>\`;
             }
             return;
         }
@@ -782,12 +761,12 @@ viOverlay.addEventListener('keydown', (e) => {
             } else if (e.key === 'Enter') {
                 if (exCommand === ':wq') {
                     exCommand = '';
-                    addXP(50, `IMITATE`);
+                    addXP(50, \`IMITATE\`);
                     state.step = 'practice';
                     saveState();
                     handlePracticeSuccess();
                 } else {
-                    viStatus.innerHTML = `<span class="text-red-500 font-bold">Incorrect. Expected :wq</span>`;
+                    viStatus.innerHTML = \`<span class="text-red-500 font-bold">Incorrect. Expected :wq</span>\`;
                     exCommand = '';
                 }
                 updateViUI();
@@ -814,27 +793,27 @@ function updateResumeView() {
         rc.innerText = "[SYSTEM ALERT: NO EXECUTIVE PROTOCOLS COMPLETED... TRAVERSE THE TERMINAL MODULES TO CONSTRUCT YOUR PROFILE.]";
     } else {
         const p = state.profile || { name: 'Unknown', email: 'unknown', phone: 'unknown' };
-        rc.innerHTML = `<div class="mb-6 pb-6 border-b-2 border-[var(--arcade-purple)]">
-                            <h3 class="font-bold text-white uppercase text-fluid-lg">${p.name || 'Unknown'}</h3>
-                            <p class="text-[var(--arcade-yellow)]">${p.email || 'unknown'} | ${p.phone || 'unknown'}</p>
+        rc.innerHTML = \`<div class="mb-6 pb-6 border-b-2 border-[var(--arcade-purple)]">
+                            <h3 class="font-bold text-white uppercase text-fluid-lg">\${p.name || 'Unknown'}</h3>
+                            <p class="text-[var(--arcade-yellow)]">\${p.email || 'unknown'} | \${p.phone || 'unknown'}</p>
                         </div>
-                        <h3 class="font-bold text-white mb-4 uppercase">PROFESSIONAL EXPERIENCE:</h3>` + 
-                       state.resumeBlocks.map(b => `<div class="mb-4 pl-4 border-l-2 border-[var(--arcade-green)]"><p class="text-slate-400 italic text-[14px]">"${b}"</p></div>`).join('');
+                        <h3 class="font-bold text-white mb-4 uppercase">PROFESSIONAL EXPERIENCE:</h3>\` + 
+                       state.resumeBlocks.map(b => \`<div class="mb-4 pl-4 border-l-2 border-[var(--arcade-green)]"><p class="text-slate-400 italic text-[14px]">"\${b}"</p></div>\`).join('');
     }
 }
 
 function generateResumeText() {
-    let txt = "EXECUTIVE SYSTEM ADMINISTRATOR PROFILE\n";
-    txt += "========================================\n\n";
+    let txt = "EXECUTIVE SYSTEM ADMINISTRATOR PROFILE\\n";
+    txt += "========================================\\n\\n";
     
     const p = state.profile || { name: 'Unknown', email: 'unknown', phone: 'unknown' };
-    txt += `NAME: ${p.name || 'Unknown'}\nEMAIL: ${p.email || 'unknown'}\nPHONE: ${p.phone || 'unknown'}\n\n`;
-    txt += "----------------------------------------\n\n";
+    txt += \`NAME: \${p.name || 'Unknown'}\\nEMAIL: \${p.email || 'unknown'}\\nPHONE: \${p.phone || 'unknown'}\\n\\n\`;
+    txt += "----------------------------------------\\n\\n";
     if (state.resumeBlocks.length === 0) {
-        txt += "NO MODULES COMPLETED YET.\n";
+        txt += "NO MODULES COMPLETED YET.\\n";
     } else {
         state.resumeBlocks.forEach(b => {
-            txt += "- " + b + "\n\n";
+            txt += "- " + b + "\\n\\n";
         });
     }
     return txt;
@@ -858,8 +837,11 @@ if (btnEmail) {
     btnEmail.addEventListener('click', (e) => {
         e.preventDefault();
         const body = encodeURIComponent(generateResumeText());
-        window.location.href = `mailto:?subject=Executive Profile Payload&body=${body}`;
+        window.location.href = \`mailto:?subject=Executive Profile Payload&body=\${body}\`;
     });
 }
 
 loadState();
+`;
+
+fs.writeFileSync('public/app.js', code);
