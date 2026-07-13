@@ -17,10 +17,10 @@ const CURRICULUM = {
       demonstrateText: "Watch closely as I look around...",
       demonstrateCommand: "ls",
       demonstrateOutput: "toy.txt  blocks.txt  puzzle",
-      imitatePrompt: "Now your turn! Try looking around the room. Type exactly: ls",
+      imitatePrompt: "Type exactly: ls",
       imitateTarget: "ls",
       practice: [
-        { prompt: "Awesome! Now let's look closer to find hidden toys. Type exactly: ls -a", target: "ls -a" }
+        { prompt: "Let's look closer to find hidden toys. Type exactly: ls -a", target: "ls -a" }
       ]
     },
     2: {
@@ -167,7 +167,6 @@ const ranks = [
     { threshold: 1200, name: "LINUX MASTER" }
 ];
 
-
 function updateRank() {
     let currentRank = "NOVICE";
     let nextThreshold = ranks[1].threshold;
@@ -197,8 +196,6 @@ function updateRank() {
         xpProgress.style.width = percent + '%';
     }
 }
-
-
 
 function addXP(amount, reason) {
     state.xp += amount;
@@ -304,8 +301,21 @@ function updatePrompt() {
     }
 }
 
+function exitToBlog() {
+    gameStarted = false;
+    termOutput.innerHTML = '';
+    viMode = false;
+    viOverlay.classList.add('view-hidden');
+    viOverlay.classList.remove('flex');
+    
+    document.querySelectorAll('section').forEach(s => s.classList.add('view-hidden'));
+    document.querySelectorAll('nav button').forEach(b => b.classList.remove('tab-active'));
+    document.getElementById(`view-blog`).classList.remove('view-hidden');
+    document.getElementById(`nav-blog`).classList.add('tab-active');
+}
+
 let gameStarted = false;
-['blog', 'terminal', 'resume'].forEach(view => {
+['blog', 'about', 'archive', 'terminal', 'resume'].forEach(view => {
     const btn = document.getElementById(`nav-${view}`);
     if(btn) {
         btn.addEventListener('click', (e) => {
@@ -380,6 +390,7 @@ async function startMenu() {
         await printTypewriter("[2] Continue Profile (No Save Found)", 'text-slate-500 block italic', 1);
     }
     await printTypewriter("[3] Delete Profile", 'text-red-500 block', 1);
+    await printTypewriter("Type 'exit' to leave arcade.", 'text-slate-400 mt-2 block', 1);
     await printTypewriter("Enter choice (1, 2, or 3):", 'text-[var(--arcade-yellow)] mt-4 block', 1);
     updatePrompt();
 }
@@ -630,14 +641,11 @@ termInput.addEventListener('keydown', async (e) => {
 
         if (val.trim().toLowerCase() === 'exit') {
             saveState(); // auto-save
-            gameStarted = false; // reset
-            termOutput.innerHTML = '';
-            viMode = false;
-            viOverlay.classList.add('view-hidden');
-            viOverlay.classList.remove('flex');
-            
-            // Go to start menu
-            startMenu();
+            if (state.wizardStep === 'menu') {
+                exitToBlog();
+            } else {
+                startMenu();
+            }
             return;
         }
         
