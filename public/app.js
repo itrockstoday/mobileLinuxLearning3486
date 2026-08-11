@@ -162,9 +162,9 @@ const ranks = [
     { threshold: 0, name: "NOVICE" },
     { threshold: 100, name: "APPRENTICE" },
     { threshold: 250, name: "JOURNEYMAN" },
-    { threshold: 500, name: "SYSADMIN" },
-    { threshold: 800, name: "ARCHITECT" },
-    { threshold: 1200, name: "LINUX MASTER" }
+    { threshold: 500, name: "END USER" },
+    { threshold: 800, name: "POWER USER" },
+    { threshold: 1200, name: "JUNIOR SYSTEMS ADMIN" }
 ];
 
 function updateRank() {
@@ -349,6 +349,15 @@ let gameStarted = false;
         });
     }
 });
+
+const linkArchiveTop = document.getElementById('link-archive-top');
+if (linkArchiveTop) {
+    linkArchiveTop.addEventListener('click', (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('nav-archive');
+        if (btn) btn.click();
+    });
+}
 
 // Mobile Hamburger Menu Toggle
 const hamburgerBtn = document.getElementById('hamburger-btn');
@@ -855,7 +864,7 @@ if (btnExport) {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'resume_payload.txt';
+        a.download = 'resume.txt';
         a.click();
         URL.revokeObjectURL(url);
     });
